@@ -54,11 +54,7 @@ jobs:
                MESSAGE=$(echo "$commit_decoded" | jq -r '.messageHeadline')
                echo "commit_message : $MESSAGE"
                
-              # GIT_RESPONSE=$(cat github-mock-response.json)
-              # echo " Process started : $GIT_RESPONSE"
-          
-               #Extract Fix Versions (as a comma-separated string)
-               #MESSAGE=$(echo "$commit_message" | jq -r '.fields.message')
+              # Extract JIRA number
                if [[ $MESSAGE =~ \[([A-Z]+-[0-9]+)\] ]]; then
                  JIRA_NUMBER=${BASH_REMATCH[1]}
                  echo "Extracted Message value: $JIRA_NUMBER"
@@ -80,21 +76,52 @@ jobs:
                FIX_VERSIONS=$(echo "$JIRA_RESPONSE" | jq -r '.fields.fixVersions | join(", ")')
                echo "Fix Versions: $FIX_VERSIONS"
 
-
           # Append the email to the recipients list (avoid duplicates)
             if [[ -n "$commit_email" && ! ",$recipients," == *",$commit_email,"* ]]; then
                 if [ -z "$recipients" ]; then
                   recipients="$commit_email"
-                  echo " if recipients : $recipients"
                 else
                   recipients="$recipients,$commit_email"
-                  echo " else recipients : $recipients"
                 fi
             fi
             done
           done
           # Save the recipients list to an environment variable
           echo "RECIPIENTS=$recipients" >> $GITHUB_ENV
+
+          # Generate HTML email content
+          EMAIL_CONTENT=$(cat <<EOF
+          <html>
+          <head>
+            <style>
+              body { font-family: Arial, sans-serif; line-height: 1.6; }
+              .container { padding: 20px; background-color: #f4f4f9; border-radius: 5px; border: 1px solid #ddd; }
+              .header { font-weight: bold; color: #444; font-size: 18px; margin-bottom: 10px; }
+              .details { margin: 10px 0; }
+              .footer { font-size: 14px; color: #888; margin-top: 20px; }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <div class="header">New Release Branch Notification</div>
+              <div class="details">
+                <p><strong>Branch Name:</strong> ${{ github.ref_name }}</p>
+                <p><strong>Commit Authors:</strong> $recipients</p>
+                <p><strong>JIRA Number:</strong> $JIRA_NUMBER</p>
+                <p><strong>Status:</strong> $STATUS</p>
+                <p><strong>Component Names:</strong> $COMPONENTS</p>
+                <p><strong>Fix Versions:</strong> $FIX_VERSIONS</p>
+              </div>
+              <div class="footer">
+                This is an automated notification email. Please do not reply.
+              </div>
+            </div>
+          </body>
+          </html>
+          EOF )
+          
+          echo "$EMAIL_CONTENT" > email.html
+          echo "::set-output name=email_content::$(cat email.html)"
 
       # Step 3: Send email notifications
       - name: Send email notifications
@@ -105,10 +132,7 @@ jobs:
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_PASSWORD }}
           subject: "New Release Branch Created: ${{ github.ref_name }}"
-          body: |
-            A new release branch '${{ github.ref_name }}' was created from the main branch.
-            The following commit authors were involved in the associated PRs:
-            ${{ env.RECIPIENTS }}
-            Please review the changes and take any necessary action.
+          body: ${{ steps.generate_email.outputs.email_content }}
+          content_type: text/html
           to: ${{ env.RECIPIENTS }} # Dynamically set the recipient list
           from: "thirupanyala2k2@gmail.com"
