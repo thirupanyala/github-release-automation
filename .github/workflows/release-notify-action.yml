@@ -51,14 +51,14 @@ jobs:
                commit_authors=$(echo "$commit_decoded" | jq -r '.authors')
                commit_email=$(echo "$commit_decoded" | jq -r '.authors[0].email')
                echo "commit_email : $commit_email"
-               commit_message=$(echo "$commit_decoded" | jq -r '.messageHeadline')
-               echo "commit_message : $commit_message"
+               MESSAGE=$(echo "$commit_decoded" | jq -r '.messageHeadline')
+               echo "commit_message : $MESSAGE"
                
               # GIT_RESPONSE=$(cat github-mock-response.json)
               # echo " Process started : $GIT_RESPONSE"
           
                #Extract Fix Versions (as a comma-separated string)
-               MESSAGE=$(echo "$commit_message" | jq -r '.fields.message')
+               #MESSAGE=$(echo "$commit_message" | jq -r '.fields.message')
                if [[ $MESSAGE =~ \[([A-Z]+-[0-9]+)\] ]]; then
                  JIRA_NUMBER=${BASH_REMATCH[1]}
                  echo "Extracted Message value: $JIRA_NUMBER"
