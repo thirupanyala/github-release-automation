@@ -1,0 +1,19 @@
+{
+    "expand": "expand1234",
+    "id": "10001",
+    "self": "self1234",
+    "key": "COMM-123",
+    "fields": {
+        "components": ["componentOne"],
+        "fixVersions": ["05132025"],
+        "message" :"[COMM-123] Sample message from JIRA",
+        "updated": "2025-05-13T22:11:01.841-0700",
+        "status": {
+            "self": "10001",
+            "description": "",
+            "iconUrl": "iconUrl",
+            "name": "Inprogress",
+            "id": "10001"
+        }
+    }
+}
