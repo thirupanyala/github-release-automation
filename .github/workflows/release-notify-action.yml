@@ -54,8 +54,8 @@ jobs:
                commit_message=$(echo "$commit_decoded" | jq -r '.messageHeadline')
                echo "commit_message : $commit_message"
                
-               GIT_RESPONSE=$(cat github-mock-response.json)
-               echo " Process started : $GIT_RESPONSE"
+              # GIT_RESPONSE=$(cat github-mock-response.json)
+              # echo " Process started : $GIT_RESPONSE"
           
                #Extract Fix Versions (as a comma-separated string)
                MESSAGE=$(echo "$commit_message" | jq -r '.fields.message')
