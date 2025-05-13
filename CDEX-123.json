@@ -1,0 +1,19 @@
+ {
+    "expand": "expand1234",
+    "id": "10002",
+    "self": "self1234",
+    "key": "CDEX-123",
+    "fields": {
+        "components": ["componentTwo"],
+        "fixVersions": ["05142025"],
+        "message" :"[CDEX-123] added fix",
+        "updated": "2025-05-14T22:11:01.841-0700",
+        "status": {
+            "self": "10002",
+            "description": "",
+            "iconUrl": "iconUrl",
+            "name": "Done",
+            "id": "10002"
+        }
+    }
+}
